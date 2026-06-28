@@ -1,10 +1,8 @@
 <p align="center">
   <img src="public/logo.png" alt="AI CareMatch Logo" width="280" />
 </p>
-
 <h1 align="center">AI CareMatch</h1>
 <h3 align="center">Trust-Based Caregiver Intelligence Platform</h3>
-
 <p align="center">
   <em>AI CareMatch doesn't just find caregivers — it helps you choose the right one, safely and confidently.</em>
 </p>
@@ -478,11 +476,6 @@ Contributions are welcome! Please follow these steps:
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
----
-
-## 👨‍💻 Author
-
-Built with ❤️ for making caregiving safer, smarter, and more transparent.
 
 ---
 
