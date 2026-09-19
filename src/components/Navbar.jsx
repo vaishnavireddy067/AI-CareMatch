@@ -19,20 +19,23 @@ export default function Navbar({ theme, setTheme }) {
     navigate('/');
   };
 
-  // Build links dynamically based on auth state
-  const links = [
-    { path: '/', label: t('nav.home') },
-    { path: '/search', label: t('nav.search') },
-  ];
+  // Build links dynamically based on auth state & role
+  const links = [{ path: '/', label: t('nav.home') }];
+  if (role !== 'caregiver') {
+    links.push({ path: '/search', label: t('nav.search') });
+  }
   if (isAuthenticated && role === 'caregiver') {
     links.push({ path: '/onboarding', label: t('nav.onboarding') });
   }
   if (isAuthenticated) {
     links.push({ path: '/dashboard', label: t('nav.dashboard') });
   }
+  links.push({ path: '/admin', label: '🛡️ Admin Console' });
+
 
   const displayName = userProfile?.displayName || 'User';
-  const initials = displayName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const cleanName = displayName.replace(/\s*\([^)]*\)/g, '').trim() || displayName;
+  const initials = cleanName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'U';
 
   return (
     <nav className="navbar">
@@ -71,7 +74,7 @@ export default function Navbar({ theme, setTheme }) {
                 <div className="nav-avatar">{initials}</div>
                 <div className="nav-user-info">
                   <span className="nav-user-name">{displayName}</span>
-                  <span className="nav-user-role">{role === 'caregiver' ? '💼 Caregiver' : '🩺 Patient'}</span>
+                  <span className="nav-user-role">{role === 'caregiver' ? '💼 Caregiver' : '🩺 Care Finder'}</span>
                 </div>
               </div>
               <SOSButton />

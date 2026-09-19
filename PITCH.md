@@ -334,14 +334,14 @@ We designed for **two distinct personas**:
 ### How to Demo (5-minute flow)
 
 1. **Open as Guest** → Show the landing page, switch language to Hindi → entire page translates instantly
-2. **Switch back to English** → Login as Patient (laksh@patient.com / 123456)
+2. **Switch back to English** → Login as Patient (parent@carematch.com / 123456)
 3. **Show personalized home** → Hero adapts, categories translate, CTA changes
 4. **Search**: Type "ADHD support near Banjara Hills budget 500" → Watch AI matching animation
 5. **View Results** → Show confidence indicator (89%), verification tier (🔵 Advanced), XAI reasons
 6. **Save to Favourites** → Click ❤️ heart, show it persists
 7. **Book** → Add care notes, select date/time, confirm
 8. **Dashboard** → Show favourites section, Family Safety Profile, Trust Insights
-9. **Switch to Caregiver** (laksh@caregiver.com / 123456) → Show Earnings Dashboard, Skill Upgrade Pathway, Trust Score Trend
+9. **Switch to Caregiver** (caregiver@carematch.com / 123456) → Show Earnings Dashboard, Skill Upgrade Pathway, Trust Score Trend
 10. **Onboarding** → Show AI Reference Call Analysis with sentiment scores and verification tier progress
 
 ---

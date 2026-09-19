@@ -293,8 +293,8 @@ firebase deploy
 
 | Role | Email | Password |
 |------|-------|----------|
-| 👤 Patient | `laksh@patient.com` | `123456` |
-| 🩺 Caregiver | `laksh@caregiver.com` | `123456` |
+| 👤 Patient / Parent | `parent@carematch.com` | `123456` |
+| 🩺 Caregiver | `caregiver@carematch.com` | `123456` |
 
 ### 5-Minute Demo Flow
 
@@ -442,23 +442,25 @@ Once assigned, a caregiver is **blocked** from receiving new requests for **4 ho
 ## 🛣️ Roadmap
 
 - [x] 6-Dimension AI Match Engine
-- [x] Explainable AI (XAI) with risk flags
+- [x] Explainable AI (XAI) with risk flags & "Why Not This Caregiver?" diagnostics
 - [x] Voice + NLP search
-- [x] Firebase Authentication & Firestore
-- [x] Role-based dashboards (Patient + Caregiver)
+- [x] Firebase Authentication & Firestore with transparent local fallback
+- [x] Role-based dashboards (Family Portal + Caregiver Hub + Admin Console)
 - [x] 4-step caregiver onboarding wizard
 - [x] SOS emergency WhatsApp alerts (Twilio)
 - [x] AI CareBot with Mem0 memory
 - [x] 4-language multilingual support
 - [x] Google Maps integration
-- [x] Favourites & Family Safety Profile
-- [ ] AWS Rekognition for live face verification
-- [ ] DigiLocker API integration
-- [ ] Firebase Cloud Messaging for push notifications
-- [ ] Payment gateway for ₹300 screening fee
-- [ ] Admin panel for medical professor reviews
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] PWA support for offline access
+- [x] 🔄 Recurring Care & Subscriptions Engine (Daily, Mon-Fri, Weekly, Monthly)
+- [x] 🧠 AI Autonomous Emergency Caregiver Replacement Engine
+- [x] 📝 Digital Care Session Journals & 7-Day Deterministic AI Health Digest
+- [x] 🗺️ Multi-Shift Daily Schedule & Route Optimizer
+- [x] 💰 Dynamic Pricing Breakdown Engine (Base + Clinical Skills + Night Shift + Urgency)
+- [x] 🧪 What-If Sensitivity Simulator
+- [x] 🛡️ Admin Dispute Forensic Evidence Locker & Adjudication
+- [x] 📜 Certification Expiry & Legal Compliance Manager (CPR, Police Clear, Nursing)
+- [x] 💳 Escrow Financial State Machine Ledger (Hold, Release, Refund)
+- [x] 👨‍👩‍👧 Multi-Member Structured Family Care Plans with Medication Trackers
 
 ---
 

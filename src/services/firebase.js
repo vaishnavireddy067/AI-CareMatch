@@ -11,22 +11,28 @@ function getDB() {
   try { return JSON.parse(localStorage.getItem(DB_KEY) || '{}'); }
   catch { return {}; }
 }
-function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function saveDB(data) {
+  try { localStorage.setItem(DB_KEY, JSON.stringify(data)); } catch (e) { console.warn('Storage save failed:', e); }
+}
 
 // ─── Bookings ───
 export async function saveBooking(booking) {
-  if (isConfigured) {
-    const docRef = await addDoc(collection(db, 'bookings'), {
-      ...booking,
-      status: 'confirmed',
-      createdAt: serverTimestamp(),
-    });
-    return { ...booking, id: docRef.id, status: 'confirmed' };
+  if (isConfigured && db) {
+    try {
+      const docRef = await addDoc(collection(db, 'bookings'), {
+        ...booking,
+        status: 'confirmed',
+        createdAt: serverTimestamp(),
+      });
+      return { ...booking, id: docRef.id, status: 'confirmed' };
+    } catch (err) {
+      console.warn('Firestore saveBooking failed, using local storage fallback:', err.message);
+    }
   }
   // localStorage fallback
   const local = getDB();
   if (!local.bookings) local.bookings = [];
-  booking.id = Date.now().toString();
+  booking.id = 'BK-' + Date.now();
   booking.createdAt = new Date().toISOString();
   booking.status = 'confirmed';
   local.bookings.push(booking);
@@ -35,25 +41,35 @@ export async function saveBooking(booking) {
 }
 
 export async function getBookings() {
-  if (isConfigured) {
-    const snap = await getDocs(query(collection(db, 'bookings'), orderBy('createdAt', 'desc')));
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  if (isConfigured && db) {
+    try {
+      const snap = await getDocs(query(collection(db, 'bookings'), orderBy('createdAt', 'desc')));
+      if (!snap.empty) {
+        return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      }
+    } catch (err) {
+      console.warn('Firestore getBookings failed, reading local:', err.message);
+    }
   }
   return getDB().bookings || [];
 }
 
 // ─── Feedback ───
 export async function saveFeedback(feedback) {
-  if (isConfigured) {
-    const docRef = await addDoc(collection(db, 'feedback'), {
-      ...feedback,
-      createdAt: serverTimestamp(),
-    });
-    return { ...feedback, id: docRef.id };
+  if (isConfigured && db) {
+    try {
+      const docRef = await addDoc(collection(db, 'feedback'), {
+        ...feedback,
+        createdAt: serverTimestamp(),
+      });
+      return { ...feedback, id: docRef.id };
+    } catch (err) {
+      console.warn('Firestore saveFeedback failed, using local:', err.message);
+    }
   }
   const local = getDB();
   if (!local.feedback) local.feedback = [];
-  feedback.id = Date.now().toString();
+  feedback.id = 'FB-' + Date.now();
   feedback.createdAt = new Date().toISOString();
   local.feedback.push(feedback);
   saveDB(local);
@@ -61,9 +77,13 @@ export async function saveFeedback(feedback) {
 }
 
 export async function getFeedback(caregiverId) {
-  if (isConfigured) {
-    const snap = await getDocs(query(collection(db, 'feedback'), where('caregiverId', '==', caregiverId)));
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  if (isConfigured && db) {
+    try {
+      const snap = await getDocs(query(collection(db, 'feedback'), where('caregiverId', '==', caregiverId)));
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    } catch (err) {
+      console.warn('Firestore getFeedback failed, reading local:', err.message);
+    }
   }
   return (getDB().feedback || []).filter((f) => f.caregiverId === caregiverId);
 }
@@ -82,18 +102,31 @@ export function getSession(key) {
 
 // ─── Notifications ───
 export async function sendNotification(notification) {
-  if (isConfigured) {
-    await addDoc(collection(db, 'notifications'), {
-      ...notification,
-      read: false,
-      createdAt: serverTimestamp(),
-    });
+  if (isConfigured && db) {
+    try {
+      await addDoc(collection(db, 'notifications'), {
+        ...notification,
+        read: false,
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.warn('Firestore sendNotification failed, storing locally:', err.message);
+      const local = getDB();
+      if (!local.notifications) local.notifications = [];
+      local.notifications.push({
+        ...notification,
+        id: 'NT-' + Date.now(),
+        read: false,
+        createdAt: new Date().toISOString(),
+      });
+      saveDB(local);
+    }
   } else {
     const local = getDB();
     if (!local.notifications) local.notifications = [];
     local.notifications.push({
       ...notification,
-      id: Date.now().toString(),
+      id: 'NT-' + Date.now(),
       read: false,
       createdAt: new Date().toISOString(),
     });
@@ -101,30 +134,41 @@ export async function sendNotification(notification) {
   }
 
   // Browser push notification
-  if ('Notification' in window && Notification.permission === 'granted') {
+  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
     new Notification(notification.title, { body: notification.body, icon: '/favicon.svg' });
   }
 }
 
 export async function getNotifications() {
-  if (isConfigured) {
-    const snap = await getDocs(query(collection(db, 'notifications'), orderBy('createdAt', 'desc')));
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  if (isConfigured && db) {
+    try {
+      const snap = await getDocs(query(collection(db, 'notifications'), orderBy('createdAt', 'desc')));
+      if (!snap.empty) {
+        return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      }
+    } catch (err) {
+      console.warn('Firestore getNotifications failed, reading local:', err.message);
+    }
   }
   return (getDB().notifications || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 // ─── Caregiver Job Assignment (Firestore-backed blocking) ───
 export async function assignCaregiverJob(caregiverId) {
-  if (isConfigured) {
-    const blockUntil = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
-    await addDoc(collection(db, 'assignments'), {
-      caregiverId,
-      assignedAt: serverTimestamp(),
-      blockUntil,
-      status: 'active',
-    });
-    return blockUntil;
+  const blockUntil = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString();
+  if (isConfigured && db) {
+    try {
+      await addDoc(collection(db, 'assignments'), {
+        caregiverId,
+        assignedAt: serverTimestamp(),
+        blockUntil,
+        status: 'active',
+      });
+      return blockUntil;
+    } catch (err) {
+      console.warn('Firestore assignCaregiverJob failed, falling back:', err.message);
+    }
   }
-  return null;
+  return blockUntil;
 }
+

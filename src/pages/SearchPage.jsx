@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Zap, MapPin, Map, Calendar, Clock, X, CheckCircle } from 'lucide-react';
+import { Search, Zap, MapPin, Map, Calendar, Clock, X, CheckCircle, Sparkles, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import DomainSelector from '../components/DomainSelector';
 import VoiceInput from '../components/VoiceInput';
 import CaregiverCard from '../components/CaregiverCard';
 import CaregiverMap from '../components/CaregiverMap';
 import MatchAnimation from '../components/MatchAnimation';
 import RiskBanner from '../components/RiskBanner';
+import WhatIfSimulatorModal from '../components/WhatIfSimulatorModal';
 import { parseInput } from '../engine/nlpParser';
 import { matchCaregivers } from '../engine/matchEngine';
+import { getWhyNotExplanation } from '../engine/whatIfEngine';
 import { saveBooking, sendNotification } from '../services/firebase';
 import { parseWithAI, isAIConfigured } from '../services/openaiService';
 import { addMemory } from '../services/mem0Service';
@@ -32,6 +34,8 @@ export default function SearchPage() {
   const [showMap, setShowMap] = useState(true);
   const [aiParsing, setAiParsing] = useState(false);
   const [pendingResults, setPendingResults] = useState(null);
+  const [whatIfOpen, setWhatIfOpen] = useState(false);
+  const [whyNotExpandedId, setWhyNotExpandedId] = useState(null);
 
   // Scheduling state
   const [schedDate, setSchedDate] = useState('');
@@ -294,10 +298,20 @@ export default function SearchPage() {
             </div>
           </div>
 
-          <button className="btn-primary search-btn" onClick={handleSearch} disabled={aiParsing}>
-            <Search size={18} /> {aiParsing ? '🤖 AI Parsing...' : 'Find Best Match'}
-          </button>
-          {isAIConfigured && <span className="ai-badge">🤖 Powered by GPT-4o</span>}
+          <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button className="btn-primary search-btn" style={{ flex: 1, minWidth: '200px' }} onClick={handleSearch} disabled={aiParsing}>
+              <Search size={18} /> {aiParsing ? '🤖 AI Parsing...' : 'Find Best Match'}
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '6px', borderColor: 'rgba(139, 92, 246, 0.4)', color: '#C084FC' }}
+              onClick={() => setWhatIfOpen(true)}
+            >
+              <Sparkles size={16} color="#A78BFA" /> 🧪 What-If Match Simulator
+            </button>
+          </div>
+          {isAIConfigured && <span className="ai-badge">🤖 Powered by GPT-4o Multi-Factor Matching</span>}
         </div>
 
         {clarify && <div className="clarify-msg glass-card"><p>{clarify}</p></div>}
@@ -352,7 +366,7 @@ export default function SearchPage() {
 
             {results.alternative && (
               <>
-                <h3 className="alt-title">💡 Smart Alternative</h3>
+                <h3 className="alt-title">💡 Smart Alternative Recommendation</h3>
                 <p className="alt-comparison">{results.alternative.comparisonText}</p>
                 <CaregiverCard
                   result={results.alternative}
@@ -362,6 +376,33 @@ export default function SearchPage() {
                   onToggleFav={toggleFav}
                   isFav={favourites.includes(results.alternative.caregiver.id)}
                 />
+
+                {/* XAI: Why wasn't this caregiver ranked #1? */}
+                <div className="glass-card" style={{ padding: '12px 16px', borderRadius: 'var(--radius-lg)', margin: 'var(--space-3) 0 var(--space-6)', border: '1px dashed rgba(139, 92, 246, 0.3)', background: 'rgba(139, 92, 246, 0.04)' }}>
+                  <div
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                    onClick={() => setWhyNotExpandedId(whyNotExpandedId === results.alternative.caregiver.id ? null : results.alternative.caregiver.id)}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: '#C084FC' }}>
+                      <HelpCircle size={15} />
+                      <span>XAI Diagnostic: Why was {results.alternative.caregiver.name} ranked as Alternative rather than #1?</span>
+                    </div>
+                    {whyNotExpandedId === results.alternative.caregiver.id ? <ChevronUp size={16} color="#A78BFA" /> : <ChevronDown size={16} color="#A78BFA" />}
+                  </div>
+
+                  {whyNotExpandedId === results.alternative.caregiver.id && (
+                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {getWhyNotExplanation(results.alternative.caregiver, { selectedDomain: domain || 'child', budget, maxRadiusKm: 5 }).map((r, rIdx) => (
+                        <div key={rIdx} style={{ display: 'flex', gap: '8px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          <span>{r.icon}</span>
+                          <div>
+                            <strong style={{ color: '#E2E8F0' }}>{r.title}:</strong> <span>{r.detail}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
@@ -442,6 +483,15 @@ export default function SearchPage() {
             </div>
           </div>
         )}
+
+        {/* What-If Sensitivity Simulator Modal */}
+        <WhatIfSimulatorModal
+          isOpen={whatIfOpen}
+          onClose={() => setWhatIfOpen(false)}
+          initialBudget={budget}
+          initialRadius={5}
+          domain={domain || 'child'}
+        />
       </div>
 
       <style>{`

@@ -11,6 +11,7 @@ const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const WhatsAppPage = lazy(() => import('./pages/WhatsAppPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 const CareBot = lazy(() => import('./components/CareBot'));
 
 function PageLoader() {
@@ -50,10 +51,12 @@ export default function App() {
                   <DashboardPage />
                 </ProtectedRoute>
               } />
+              <Route path="/admin" element={<AdminPage />} />
               <Route path="/whatsapp" element={<WhatsAppPage />} />
             </Routes>
           </Suspense>
         </main>
+
         <footer className="site-footer">
           <div className="container footer-inner">
             <p>© 2026 AI CareMatch — Trust-Based Caregiver Intelligence Platform</p>

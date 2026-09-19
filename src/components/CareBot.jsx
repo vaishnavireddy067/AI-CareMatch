@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Volume2, VolumeX } from 'lucide-react';
 import { chatWithAI } from '../services/openaiService';
 
 const SYSTEM_PROMPT = `You are CareBot, the official AI assistant for the AI CareMatch platform — a trust-based caregiver intelligence platform.
@@ -32,7 +32,7 @@ PLATFORM KNOWLEDGE:
 - 4 languages supported: English, Hindi, Telugu, Tamil (instant switching)
 - Platform operates in Hyderabad, India
 - WhatsApp notification is sent automatically after booking a screened caregiver
-- Login: Patients (e.g. laksh@patient.com / 123456), Caregivers (e.g. laksh@caregiver.com / 123456)
+- Login: Patients (e.g. parent@carematch.com / 123456), Caregivers (e.g. caregiver@carematch.com / 123456)
 
 HOW TO USE:
 1. Go to "Find Caregiver" page
@@ -60,7 +60,7 @@ const FAQ = [
   { keys: ['favourite', 'favorite', 'save'], reply: "Click the **❤️ heart** on any caregiver card to save them. View all favourites in your Dashboard → Favourite Caregivers section. Quick rebook anytime! ❤️" },
   { keys: ['safety', 'emergency', 'profile'], reply: "Set up your **Family Safety Profile** in the Dashboard: emergency contacts, blood group, allergies, medications, and health conditions — all in one secure place. 🏥" },
   { keys: ['price', 'cost', 'budget', 'pricing'], reply: "Set your budget using the **slider** (₹100-₹5000/session). The AI shows caregivers within your budget and gives **optimization tips** — e.g. '₹50 more unlocks 1 higher-rated caregiver'. 💰" },
-  { keys: ['login', 'account', 'sign up'], reply: "Click **Login** in the top-right. Demo accounts:\n• **Patient**: laksh@patient.com / 123456\n• **Caregiver**: laksh@caregiver.com / 123456\nSign up with any email to create a new account! 🔑" },
+  { keys: ['login', 'account', 'sign up'], reply: "Click **Login** in the top-right. Demo accounts:\n• **Patient/Parent**: parent@carematch.com / 123456\n• **Caregiver**: caregiver@carematch.com / 123456\nSign up with your personal email to create an account! 🔑" },
   { keys: ['xai', 'explain', 'why', 'reason'], reply: "Our **Explainable AI** gives 5 plain-English reasons for every match — like 'Verified — 8/8 checks passed' or '97% on-time rate'. Plus a **Smart Alternative** with trade-offs explained. 🧠" },
   { keys: ['whatsapp', 'notification', 'notify'], reply: "After booking a **screened caregiver**, a WhatsApp message is auto-sent with your booking details. This only happens for caregivers with approved screening status. 📱" },
   { keys: ['risk', 'flag', 'warning'], reply: "**Risk Flags** show potential concerns BEFORE booking — like 'No night-shift availability' or 'Limited experience with this condition'. Keeps you informed! ⚠️" },
@@ -112,6 +112,25 @@ export default function CareBot() {
     setLoading(false);
   };
 
+  const [speakingIdx, setSpeakingIdx] = useState(null);
+
+  const speakText = (text, idx) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingIdx === idx) {
+      window.speechSynthesis.cancel();
+      setSpeakingIdx(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const clean = text.replace(/[*#•_`]/g, '').replace(/https?:\/\/\S+/g, '');
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.rate = 1.0;
+    utterance.onend = () => setSpeakingIdx(null);
+    utterance.onerror = () => setSpeakingIdx(null);
+    setSpeakingIdx(idx);
+    window.speechSynthesis.speak(utterance);
+  };
+
   return (
     <>
       {/* Chat Toggle Button */}
@@ -133,7 +152,7 @@ export default function CareBot() {
                 <span className="carebot-status">● Online</span>
               </div>
             </div>
-            <button className="carebot-close" onClick={() => setOpen(false)}><X size={18} /></button>
+            <button className="carebot-close" onClick={() => { window.speechSynthesis?.cancel(); setSpeakingIdx(null); setOpen(false); }}><X size={18} /></button>
           </div>
 
           <div className="carebot-messages">
@@ -142,7 +161,19 @@ export default function CareBot() {
                 <div className="carebot-msg-icon">
                   {msg.role === 'assistant' ? <Bot size={16} /> : <User size={16} />}
                 </div>
-                <div className="carebot-msg-bubble">{msg.content}</div>
+                <div className="carebot-msg-bubble">
+                  {msg.content}
+                  {msg.role === 'assistant' && (
+                    <button
+                      type="button"
+                      className="carebot-speak-btn"
+                      onClick={() => speakText(msg.content, i)}
+                      title={speakingIdx === i ? 'Stop Speaking' : 'Read Aloud'}
+                    >
+                      {speakingIdx === i ? <VolumeX size={13} color="#A78BFA" /> : <Volume2 size={13} />}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
             {loading && (
@@ -260,6 +291,26 @@ export default function CareBot() {
           background: rgba(99,102,241,0.08);
           border: 1px solid rgba(99,102,241,0.15);
           border-bottom-left-radius: 4px;
+          position: relative;
+        }
+        .carebot-speak-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #94a3b8;
+          border-radius: 6px;
+          width: 22px;
+          height: 22px;
+          margin-left: 6px;
+          cursor: pointer;
+          transition: all 0.2s;
+          vertical-align: middle;
+        }
+        .carebot-speak-btn:hover {
+          background: rgba(99, 102, 241, 0.25);
+          color: #fff;
         }
         .carebot-msg.user .carebot-msg-bubble {
           background: rgba(16,185,129,0.12);

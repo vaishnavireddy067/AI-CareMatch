@@ -23,7 +23,7 @@ const caregivers = [
   { uniqueId: 'CG-10003', displayName: 'Srilatha Venkat', role: 'caregiver', category: 'child', location: 'Kukatpally', specializations: ['autism', 'speech therapy', 'sensory activities'], trustScore: 89, pricing: 550 },
   { uniqueId: 'CG-10004', displayName: 'Fatima Begum', role: 'caregiver', category: 'child', location: 'Tolichowki', specializations: ['newborn care', 'post-natal', 'twins'], trustScore: 90, pricing: 500 },
   { uniqueId: 'CG-10005', displayName: 'Suresh Babu', role: 'caregiver', category: 'human', location: 'Madhapur', specializations: ['post-surgery', 'physiotherapy', 'medication management'], trustScore: 95, pricing: 600 },
-  { uniqueId: 'CG-10006', displayName: 'Lakshmi Naidu', role: 'caregiver', category: 'human', location: 'Kondapur', specializations: ['dementia', 'alzheimers', 'cognitive exercises'], trustScore: 91, pricing: 700 },
+  { uniqueId: 'CG-10006', displayName: 'Lavanya Naidu', role: 'caregiver', category: 'human', location: 'Kondapur', specializations: ['dementia', 'alzheimers', 'cognitive exercises'], trustScore: 91, pricing: 700 },
   { uniqueId: 'CG-10007', displayName: 'Mohammed Irfan', role: 'caregiver', category: 'human', location: 'Secunderabad', specializations: ['24-hour care', 'bedridden', 'wheelchair assistance'], trustScore: 93, pricing: 800 },
   { uniqueId: 'CG-10008', displayName: 'Venkat Rao', role: 'caregiver', category: 'human', location: 'Begumpet', specializations: ['dementia', 'night-shift', 'companionship'], trustScore: 92, pricing: 650 },
   { uniqueId: 'CG-10009', displayName: 'Kavitha Reddy', role: 'caregiver', category: 'pet', location: 'Gachibowli', specializations: ['large breeds', 'anxiety', 'behavioral training'], trustScore: 86, pricing: 350 },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/auth-context';
 import { Shield, Mail, Lock, User, Briefcase, Heart, Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react';
@@ -16,23 +16,48 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // If already logged in, redirect
+  // If already logged in, redirect safely via useEffect
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
     return null;
   }
 
-  const friendlyError = (code) => {
+  const friendlyError = (err) => {
+    if (!err) return 'Something went wrong. Please try again.';
+    const code = typeof err === 'object' ? err.code : err;
     const map = {
       'auth/email-already-in-use': 'An account with this email already exists. Try logging in.',
       'auth/invalid-email': 'Please enter a valid email address.',
       'auth/weak-password': 'Password must be at least 6 characters.',
-      'auth/user-not-found': 'No account found with this email. Sign up first.',
+      'auth/user-not-found': 'No account found with this email. Please click "Sign Up" below.',
       'auth/wrong-password': 'Incorrect password. Please try again.',
       'auth/invalid-credential': 'Invalid email or password. Please try again.',
       'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
     };
-    return map[code] || 'Something went wrong. Please try again.';
+    if (code && map[code]) return map[code];
+    if (typeof err === 'object' && err.message && !err.message.includes('Firebase')) {
+      return err.message;
+    }
+    return 'Something went wrong. Please try again.';
+  };
+
+  const handleQuickDemo = async (demoRole) => {
+    setError('');
+    setSubmitting(true);
+    try {
+      const demoEmail = demoRole === 'caregiver' ? 'caregiver@carematch.com' : 'parent@carematch.com';
+      await login(demoEmail, '123456');
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      setError(friendlyError(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -50,7 +75,7 @@ export default function LoginPage() {
       }
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(friendlyError(err.code));
+      setError(friendlyError(err));
     } finally {
       setSubmitting(false);
     }
@@ -96,7 +121,7 @@ export default function LoginPage() {
                   onClick={() => setRole('patient')}
                 >
                   <div className="role-icon patient-icon"><User size={24} /></div>
-                  <strong>I'm a Patient</strong>
+                  <strong>I'm a Care Finder</strong>
                   <span>Find & book trusted caregivers</span>
                 </button>
                 <button
@@ -198,6 +223,33 @@ export default function LoginPage() {
               ) : (
                 <p>Already have an account? <button type="button" onClick={() => { setMode('login'); setError(''); }}>Sign In</button></p>
               )}
+            </div>
+
+            {/* Quick Demo Section */}
+            <div className="quick-demo-section">
+              <div className="quick-demo-divider">
+                <span>⚡ OR TEST WITH 1-CLICK DEMO</span>
+              </div>
+              <div className="quick-demo-buttons">
+                <button
+                  type="button"
+                  className="quick-demo-btn patient"
+                  onClick={() => handleQuickDemo('patient')}
+                  disabled={submitting}
+                >
+                  <User size={15} />
+                  <span>Demo Care Finder</span>
+                </button>
+                <button
+                  type="button"
+                  className="quick-demo-btn caregiver"
+                  onClick={() => handleQuickDemo('caregiver')}
+                  disabled={submitting}
+                >
+                  <Briefcase size={15} />
+                  <span>Demo Caregiver</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -419,6 +471,66 @@ export default function LoginPage() {
           border-top-color: var(--primary-500);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
+        }
+
+        /* ── Quick Demo ── */
+        .quick-demo-section {
+          margin-top: var(--space-5);
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-3);
+        }
+        .quick-demo-divider {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          color: var(--text-muted);
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+        .quick-demo-divider::before,
+        .quick-demo-divider::after {
+          content: '';
+          flex: 1;
+          border-bottom: 1px solid var(--border-glass);
+        }
+        .quick-demo-divider span {
+          padding: 0 var(--space-3);
+        }
+        .quick-demo-buttons {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: var(--space-3);
+        }
+        .quick-demo-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: var(--space-2);
+          padding: var(--space-2) var(--space-3);
+          border-radius: var(--radius-lg);
+          font-size: var(--fs-xs);
+          font-weight: 600;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border-glass);
+          color: var(--text-primary);
+        }
+        .quick-demo-btn.patient {
+          border-color: rgba(59, 130, 246, 0.3);
+          color: #93c5fd;
+        }
+        .quick-demo-btn.patient:hover {
+          background: rgba(59, 130, 246, 0.15);
+        }
+        .quick-demo-btn.caregiver {
+          border-color: rgba(16, 185, 129, 0.3);
+          color: #6ee7b7;
+        }
+        .quick-demo-btn.caregiver:hover {
+          background: rgba(16, 185, 129, 0.15);
         }
 
         /* ── Responsive ── */

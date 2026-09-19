@@ -70,12 +70,12 @@ export const caregivers = [
     ],
     reviews: [
       { family: 'Rajesh K.', rating: 5, text: 'Suresh managed my father\'s post-hip-surgery recovery perfectly.' },
-      { family: 'Lakshmi N.', rating: 5, text: 'Professional, gentle, and extremely dependable.' }
+      { family: 'Lavanya N.', rating: 5, text: 'Professional, gentle, and extremely dependable.' }
     ]
   },
   {
-    id: 6, uniqueId: 'CG-10006', name: 'Lakshmi Naidu', age: 38, gender: 'Female',
-    domain: 'human', category: 'human', photo: cgPhoto('Lakshmi Naidu', 'Female'),
+    id: 6, uniqueId: 'CG-10006', name: 'Lavanya Naidu', age: 38, gender: 'Female',
+    domain: 'human', category: 'human', photo: cgPhoto('Lavanya Naidu', 'Female'),
     specializations: ['dementia', 'alzheimers', 'cognitive exercises', '24-hour care'],
     bio: '7 years specializing in dementia and Alzheimer\'s care. Certified in cognitive stimulation therapy.',
     location: { name: 'Kondapur', lat: 17.4589, lng: 78.3631 },
@@ -91,7 +91,7 @@ export const caregivers = [
       { location: 'Kondapur', date: '2026-05-08', duration: '4 hrs', status: 'completed' },
     ],
     reviews: [
-      { family: 'Sunitha R.', rating: 5, text: 'Lakshmi\'s dementia care training is evident in every interaction.' }
+      { family: 'Sunitha R.', rating: 5, text: 'Lavanya\'s dementia care training is evident in every interaction.' }
     ]
   },
   // ───────────── 🐾 PET CARE (4) ─────────────
