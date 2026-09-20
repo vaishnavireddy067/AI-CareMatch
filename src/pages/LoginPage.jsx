@@ -7,8 +7,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login, signup, isAuthenticated } = useAuth();
 
-  const [mode, setMode] = useState('login'); // 'login' or 'signup'
-  const [role, setRole] = useState('patient'); // 'patient' or 'caregiver'
+  const [mode, setMode] = useState('signup'); // default to signup or login
+  const [role, setRole] = useState('caregiver'); // 'patient' or 'caregiver' (caregiver selected in screenshot)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -88,27 +88,38 @@ export default function LoginPage() {
         <div className="login-brand-panel">
           <div className="login-brand-content">
             <div className="login-logo">
-              <Shield size={40} />
-              <span>AI <span className="gradient-text">CareMatch</span></span>
+              <Shield className="shield-icon" size={32} />
+              <span className="logo-text">
+                <span className="text-white">AI </span>
+                <span className="text-amber">CareMatch</span>
+              </span>
             </div>
             <h2>Trust-Based Caregiver Intelligence</h2>
             <p>Securely access your personalized dashboard. Your data, your privacy — always protected.</p>
             <div className="login-features">
-              <div className="login-feature"><Lock size={16} /> <span>End-to-end encrypted profiles</span></div>
-              <div className="login-feature"><Shield size={16} /> <span>Role-based access control</span></div>
-              <div className="login-feature"><Heart size={16} /> <span>Verified caregiver community</span></div>
+              <div className="login-feature">
+                <Lock size={16} className="feature-icon" />
+                <span>End-to-end encrypted profiles</span>
+              </div>
+              <div className="login-feature">
+                <Shield size={16} className="feature-icon" />
+                <span>Role-based access control</span>
+              </div>
+              <div className="login-feature">
+                <Heart size={16} className="feature-icon" />
+                <span>Verified caregiver community</span>
+              </div>
             </div>
           </div>
-          <div className="login-brand-gradient" />
         </div>
 
         {/* Right — form panel */}
         <div className="login-form-panel">
           <div className="login-form-inner">
-            <h1>{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h1>
+            <h1 className="auth-title">{mode === 'login' ? 'Welcome Back' : 'Create Account'}</h1>
             <p className="login-subtitle">
               {mode === 'login'
-                ? 'Sign in to access your dashboard'
+                ? 'Sign in to access your personalized dashboard'
                 : 'Join AI CareMatch — choose your role below'}
             </p>
 
@@ -120,18 +131,22 @@ export default function LoginPage() {
                   className={`role-card ${role === 'patient' ? 'active' : ''}`}
                   onClick={() => setRole('patient')}
                 >
-                  <div className="role-icon patient-icon"><User size={24} /></div>
-                  <strong>I'm a Care Finder</strong>
-                  <span>Find & book trusted caregivers</span>
+                  <div className="role-icon patient-icon">
+                    <User size={20} />
+                  </div>
+                  <strong className="role-title">I'm a Patient</strong>
+                  <span className="role-desc">Find & book trusted caregivers</span>
                 </button>
                 <button
                   type="button"
                   className={`role-card ${role === 'caregiver' ? 'active' : ''}`}
                   onClick={() => setRole('caregiver')}
                 >
-                  <div className="role-icon caregiver-icon"><Briefcase size={24} /></div>
-                  <strong>I'm a Caregiver</strong>
-                  <span>Get verified & receive jobs</span>
+                  <div className="role-icon caregiver-icon">
+                    <Briefcase size={20} />
+                  </div>
+                  <strong className="role-title">I'm a Caregiver</strong>
+                  <span className="role-desc">Get verified & receive jobs</span>
                 </button>
               </div>
             )}
@@ -187,7 +202,7 @@ export default function LoginPage() {
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder={mode === 'signup' ? 'Min 6 characters' : 'Enter your password'}
+                    placeholder={mode === 'signup' ? '••••••••••' : 'Enter your password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -204,12 +219,12 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <button type="submit" className="btn-primary login-submit" disabled={submitting}>
+              <button type="submit" className="login-submit-btn" disabled={submitting}>
                 {submitting ? (
                   <span className="login-spinner" />
                 ) : (
                   <>
-                    {mode === 'login' ? 'Sign In' : 'Create Account'}
+                    <span>{mode === 'login' ? 'Sign In' : 'Create Account'}</span>
                     <ArrowRight size={18} />
                   </>
                 )}
@@ -228,7 +243,7 @@ export default function LoginPage() {
             {/* Quick Demo Section */}
             <div className="quick-demo-section">
               <div className="quick-demo-divider">
-                <span>⚡ OR TEST WITH 1-CLICK DEMO</span>
+                <span>⚡ 1-CLICK DEMO LOGIN</span>
               </div>
               <div className="quick-demo-buttons">
                 <button
@@ -237,8 +252,8 @@ export default function LoginPage() {
                   onClick={() => handleQuickDemo('patient')}
                   disabled={submitting}
                 >
-                  <User size={15} />
-                  <span>Demo Care Finder</span>
+                  <User size={14} />
+                  <span>Demo Patient</span>
                 </button>
                 <button
                   type="button"
@@ -246,7 +261,7 @@ export default function LoginPage() {
                   onClick={() => handleQuickDemo('caregiver')}
                   disabled={submitting}
                 >
-                  <Briefcase size={15} />
+                  <Briefcase size={14} />
                   <span>Demo Caregiver</span>
                 </button>
               </div>
@@ -257,290 +272,436 @@ export default function LoginPage() {
 
       <style>{`
         .login-page {
-          min-height: 100vh;
+          min-height: calc(100vh - 64px);
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: var(--space-4);
-          padding-top: 80px;
+          padding: 24px 16px;
+          background: #0c0a15;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
+
         .login-container {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          max-width: 960px;
+          max-width: 920px;
           width: 100%;
-          border-radius: var(--radius-2xl);
+          border-radius: 24px;
           overflow: hidden;
-          border: 1px solid var(--border-glass);
-          background: var(--bg-card);
-          box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+          background: #141124;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          box-shadow: 0 25px 80px -10px rgba(0, 0, 0, 0.7);
         }
 
-        /* ── Brand panel ── */
+        /* ── Left Brand Panel ── */
         .login-brand-panel {
           position: relative;
-          padding: var(--space-10);
+          padding: 48px 40px;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          background: linear-gradient(145deg, rgba(79,70,229,0.15) 0%, rgba(139,92,246,0.08) 100%);
-          overflow: hidden;
+          background: #19162e;
+          border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .login-brand-gradient {
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 30% 70%, rgba(79,70,229,0.25) 0%, transparent 60%);
-          pointer-events: none;
+
+        .login-brand-content {
+          position: relative;
+          z-index: 1;
         }
-        .login-brand-content { position: relative; z-index: 1; }
+
         .login-logo {
           display: flex;
           align-items: center;
-          gap: var(--space-3);
-          margin-bottom: var(--space-6);
-          color: var(--primary-400);
-          font-family: var(--font-heading);
-          font-weight: 700;
-          font-size: var(--fs-2xl);
+          gap: 12px;
+          margin-bottom: 28px;
         }
-        .login-logo span { color: var(--text-primary); }
-        .login-brand-panel h2 {
-          font-size: var(--fs-2xl);
-          margin-bottom: var(--space-3);
-          line-height: 1.3;
-        }
-        .login-brand-panel > .login-brand-content > p {
-          color: var(--text-secondary);
-          font-size: var(--fs-sm);
-          line-height: 1.6;
-          margin-bottom: var(--space-8);
-        }
-        .login-features { display: flex; flex-direction: column; gap: var(--space-3); }
-        .login-feature {
-          display: flex; align-items: center; gap: var(--space-2);
-          font-size: var(--fs-sm); color: var(--text-secondary);
-        }
-        .login-feature svg { color: var(--primary-400); flex-shrink: 0; }
 
-        /* ── Form panel ── */
+        .shield-icon {
+          color: #6366f1;
+          filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+        }
+
+        .logo-text {
+          font-size: 24px;
+          font-weight: 700;
+          letter-spacing: -0.5px;
+          font-family: 'Outfit', sans-serif;
+        }
+
+        .text-white {
+          color: #ffffff;
+        }
+
+        .text-amber {
+          color: #fbbf24;
+        }
+
+        .login-brand-panel h2 {
+          font-size: 26px;
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.3;
+          margin: 0 0 16px 0;
+          font-family: 'Outfit', sans-serif;
+        }
+
+        .login-brand-panel p {
+          color: #94a3b8;
+          font-size: 14px;
+          line-height: 1.6;
+          margin: 0 0 32px 0;
+        }
+
+        .login-features {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .login-feature {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-size: 14px;
+          color: #cbd5e1;
+        }
+
+        .feature-icon {
+          color: #6366f1;
+          flex-shrink: 0;
+        }
+
+        /* ── Right Form Panel ── */
         .login-form-panel {
-          padding: var(--space-10);
+          padding: 44px 40px;
           display: flex;
           flex-direction: column;
           justify-content: center;
-        }
-        .login-form-inner h1 {
-          font-size: var(--fs-2xl);
-          margin-bottom: var(--space-1);
-        }
-        .login-subtitle {
-          color: var(--text-secondary);
-          font-size: var(--fs-sm);
-          margin-bottom: var(--space-6);
+          background: #141124;
         }
 
-        /* ── Role selector ── */
+        .login-form-inner {
+          width: 100%;
+        }
+
+        .auth-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #ffffff;
+          margin: 0 0 6px 0;
+          font-family: 'Outfit', sans-serif;
+        }
+
+        .login-subtitle {
+          color: #94a3b8;
+          font-size: 13.5px;
+          margin: 0 0 24px 0;
+        }
+
+        /* ── Role Selector ── */
         .role-selector {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: var(--space-3);
-          margin-bottom: var(--space-5);
+          gap: 14px;
+          margin-bottom: 22px;
         }
+
         .role-card {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: var(--space-2);
-          padding: var(--space-4) var(--space-3);
-          border-radius: var(--radius-xl);
-          border: 2px solid var(--border-glass);
-          background: transparent;
-          color: var(--text-primary);
-          cursor: pointer;
-          transition: all var(--transition-base);
           text-align: center;
+          padding: 18px 12px;
+          border-radius: 16px;
+          border: 1.5px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.02);
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .role-card:hover { border-color: var(--primary-500); }
+
+        .role-card:hover {
+          border-color: rgba(99, 102, 241, 0.4);
+          background: rgba(255, 255, 255, 0.04);
+        }
+
         .role-card.active {
-          border-color: var(--primary-500);
-          background: rgba(79,70,229,0.1);
-          box-shadow: 0 0 24px rgba(79,70,229,0.2);
+          border-color: #6366f1;
+          background: rgba(99, 102, 241, 0.08);
+          box-shadow: 0 0 0 1px #6366f1, 0 8px 20px -4px rgba(99, 102, 241, 0.25);
         }
-        .role-card strong { font-size: var(--fs-sm); }
-        .role-card span { font-size: 11px; color: var(--text-muted); }
+
         .role-icon {
-          width: 48px; height: 48px;
-          border-radius: var(--radius-full);
-          display: flex; align-items: center; justify-content: center;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 12px;
         }
-        .patient-icon { background: rgba(59,130,246,0.15); color: #60a5fa; }
-        .caregiver-icon { background: rgba(16,185,129,0.15); color: #34d399; }
 
-        /* ── Error ── */
+        .patient-icon {
+          background: rgba(59, 130, 246, 0.12);
+          color: #60a5fa;
+        }
+
+        .caregiver-icon {
+          background: rgba(16, 185, 129, 0.12);
+          color: #34d399;
+        }
+
+        .role-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: #ffffff;
+          margin-bottom: 4px;
+        }
+
+        .role-desc {
+          font-size: 11.5px;
+          color: #64748b;
+          line-height: 1.3;
+        }
+
+        /* ── Error Banner ── */
         .login-error {
-          display: flex; align-items: center; gap: var(--space-2);
-          padding: var(--space-3) var(--space-4);
-          border-radius: var(--radius-lg);
-          background: rgba(239,68,68,0.08);
-          border: 1px solid rgba(239,68,68,0.25);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 14px;
+          border-radius: 10px;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.25);
           color: #f87171;
-          font-size: var(--fs-sm);
-          margin-bottom: var(--space-4);
+          font-size: 13px;
+          margin-bottom: 18px;
         }
-        .login-error svg { flex-shrink: 0; }
 
-        /* ── Form ── */
-        .login-form { display: flex; flex-direction: column; gap: var(--space-4); }
-        .input-group { display: flex; flex-direction: column; gap: 4px; }
+        /* ── Form Inputs ── */
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+
+        .input-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
         .input-group label {
-          font-size: var(--fs-xs);
+          font-size: 13px;
           font-weight: 500;
-          color: var(--text-tertiary);
+          color: #94a3b8;
         }
+
         .input-wrap {
-          display: flex; align-items: center;
-          background: var(--bg-primary);
-          border: 1px solid var(--border-glass);
-          border-radius: var(--radius-lg);
-          padding: 0 var(--space-3);
-          transition: border-color var(--transition-fast);
+          display: flex;
+          align-items: center;
+          background: #0d0a1a;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 0 14px;
+          height: 48px;
+          transition: all 0.2s ease;
         }
-        .input-wrap:focus-within { border-color: var(--primary-500); box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
-        .input-icon { color: var(--text-muted); flex-shrink: 0; }
+
+        .input-wrap:focus-within {
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+          background: #110e20;
+        }
+
+        .input-icon {
+          color: #64748b;
+          flex-shrink: 0;
+          margin-right: 10px;
+        }
+
         .input-wrap input {
           flex: 1;
-          padding: var(--space-3) var(--space-2);
           background: transparent;
           border: none;
           outline: none;
-          color: var(--text-primary);
-          font-size: var(--fs-sm);
+          color: #ffffff;
+          font-size: 14px;
           font-family: inherit;
         }
-        .input-wrap input::placeholder { color: var(--text-muted); }
-        .password-toggle {
-          display: flex; align-items: center; justify-content: center;
-          background: none; border: none; color: var(--text-muted);
-          cursor: pointer; padding: 4px;
-          transition: color var(--transition-fast);
-        }
-        .password-toggle:hover { color: var(--text-primary); }
 
-        /* ── Submit ── */
-        .login-submit {
-          width: 100%;
-          padding: var(--space-3) var(--space-6);
-          font-size: var(--fs-base);
-          display: flex; align-items: center; justify-content: center; gap: var(--space-2);
-          margin-top: var(--space-2);
+        .input-wrap input::placeholder {
+          color: #475569;
         }
-        .login-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .password-toggle {
+          background: none;
+          border: none;
+          color: #64748b;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: color 0.15s ease;
+        }
+
+        .password-toggle:hover {
+          color: #94a3b8;
+        }
+
+        /* ── Submit Button ── */
+        .login-submit-btn {
+          width: 100%;
+          height: 48px;
+          border-radius: 12px;
+          background: #6366f1;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-top: 6px;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+
+        .login-submit-btn:hover {
+          background: #5457e5;
+          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+          transform: translateY(-1px);
+        }
+
+        .login-submit-btn:active {
+          transform: translateY(0);
+        }
+
+        .login-submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
 
         .login-spinner {
-          width: 20px; height: 20px;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: #fff;
+          width: 20px;
+          height: 20px;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: #ffffff;
           border-radius: 50%;
           animation: spin 0.6s linear infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── Mode toggle ── */
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* ── Mode Toggle ── */
         .login-mode-toggle {
           text-align: center;
-          margin-top: var(--space-5);
+          margin-top: 18px;
         }
-        .login-mode-toggle p {
-          font-size: var(--fs-sm);
-          color: var(--text-secondary);
-        }
-        .login-mode-toggle button {
-          background: none; border: none;
-          color: var(--primary-400);
-          font-weight: 600; cursor: pointer;
-          text-decoration: underline;
-          font-size: var(--fs-sm);
-          font-family: inherit;
-        }
-        .login-mode-toggle button:hover { color: var(--primary-300); }
 
-        /* ── Loading spinner for ProtectedRoute ── */
-        .auth-loading-spinner {
-          width: 36px; height: 36px;
-          border: 3px solid var(--border-glass);
-          border-top-color: var(--primary-500);
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
+        .login-mode-toggle p {
+          font-size: 13.5px;
+          color: #94a3b8;
+          margin: 0;
+        }
+
+        .login-mode-toggle button {
+          background: none;
+          border: none;
+          color: #818cf8;
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0 4px;
+          text-decoration: underline;
+          font-size: 13.5px;
+          font-family: inherit;
+          transition: color 0.15s ease;
+        }
+
+        .login-mode-toggle button:hover {
+          color: #a5b4fc;
         }
 
         /* ── Quick Demo ── */
         .quick-demo-section {
-          margin-top: var(--space-5);
+          margin-top: 20px;
+          padding-top: 16px;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
           display: flex;
           flex-direction: column;
-          gap: var(--space-3);
+          gap: 10px;
         }
+
         .quick-demo-divider {
-          display: flex;
-          align-items: center;
           text-align: center;
-          color: var(--text-muted);
+          color: #64748b;
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 0.5px;
         }
-        .quick-demo-divider::before,
-        .quick-demo-divider::after {
-          content: '';
-          flex: 1;
-          border-bottom: 1px solid var(--border-glass);
-        }
-        .quick-demo-divider span {
-          padding: 0 var(--space-3);
-        }
+
         .quick-demo-buttons {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: var(--space-3);
+          gap: 10px;
         }
+
         .quick-demo-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: var(--space-2);
-          padding: var(--space-2) var(--space-3);
-          border-radius: var(--radius-lg);
-          font-size: var(--fs-xs);
+          gap: 6px;
+          height: 36px;
+          border-radius: 10px;
+          font-size: 12px;
           font-weight: 600;
           cursor: pointer;
-          transition: all var(--transition-fast);
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid var(--border-glass);
-          color: var(--text-primary);
+          transition: all 0.15s ease;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: #cbd5e1;
         }
+
         .quick-demo-btn.patient {
-          border-color: rgba(59, 130, 246, 0.3);
+          border-color: rgba(59, 130, 246, 0.25);
           color: #93c5fd;
         }
+
         .quick-demo-btn.patient:hover {
-          background: rgba(59, 130, 246, 0.15);
+          background: rgba(59, 130, 246, 0.1);
         }
+
         .quick-demo-btn.caregiver {
-          border-color: rgba(16, 185, 129, 0.3);
+          border-color: rgba(16, 185, 129, 0.25);
           color: #6ee7b7;
         }
+
         .quick-demo-btn.caregiver:hover {
-          background: rgba(16, 185, 129, 0.15);
+          background: rgba(16, 185, 129, 0.1);
         }
 
         /* ── Responsive ── */
-        @media (max-width: 768px) {
-          .login-container { grid-template-columns: 1fr; }
-          .login-brand-panel { display: none; }
-          .login-form-panel { padding: var(--space-6); }
-          .role-selector { grid-template-columns: 1fr; }
+        @media (max-width: 800px) {
+          .login-container {
+            grid-template-columns: 1fr;
+          }
+          .login-brand-panel {
+            display: none;
+          }
+          .login-form-panel {
+            padding: 32px 24px;
+          }
+          .role-selector {
+            grid-template-columns: 1fr 1fr;
+          }
         }
       `}</style>
     </div>
   );
 }
+
